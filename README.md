@@ -12,7 +12,7 @@ A partir de la plantilla adjunta:
 2. Represéntela al menos de 4 formas distintas.
 3. Renderícela en modo inmediato y retenido.
 
-_Sugerencia para proyecto:_ Realizar una aplicación de mallas poligonales, e.g., nivel-de-detalle.
+_Sugerencia para proyecto:_ Realizar una aplicación de mallas poligonales, e.g., [nivel-de-detalle](https://en.wikipedia.org/wiki/Level_of_detail).
 
 ## Entrega
 
