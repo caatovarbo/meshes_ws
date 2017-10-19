@@ -1,5 +1,7 @@
-PShape s;
+
 import java.util.*;
+
+PShape shape;
 
 class PolygonMesh{
   ArrayList<PVector> vertex;
@@ -24,14 +26,13 @@ class Mesh {
   // radius refers to the mesh 'bounding sphere' redius.
   // see: https://en.wikipedia.org/wiki/Bounding_sphere
   float radius = 200;
-  // mesh representation
 
   //Face_Vertex
-  HashMap<PVector, ArrayList<PShape>> vertex_;
+  HashMap<PVector, ArrayList<PShape>> vertexM;
   HashMap<PShape, ArrayList<PVector>> faces;
 
   //Vertex_Vertex
-  HashMap<PVector, HashSet<PVector>> vertex_vertex;
+  HashMap<PVector, HashSet<PVector>> vertexMesh;
 
 
   // rendering mode
@@ -48,43 +49,41 @@ class Mesh {
   boolean boundingSphere;
 
   Mesh() {
-    build_vertex_vertex();
+    buildMeshRepresentation();
   }
 
-  // compute both mesh vertex_ and pshape
-  void build_vertex_vertex() {
+  void buildMeshRepresentation() {
 
-    //Face-Vertex Representation
-    vertex_ = new HashMap<PVector, ArrayList<PShape>>();
+    //Face-Vertex
+    vertexM = new HashMap<PVector, ArrayList<PShape>>();
     faces = new HashMap<PShape, ArrayList<PVector>>();
 
-    //Vertex-Vertex Representation
-    vertex_vertex = new HashMap<PVector, HashSet<PVector>>();
+    //Vertex-Vertex
+    vertexMesh = new HashMap<PVector, HashSet<PVector>>();
 
-    s = loadShape("dodecahedron.obj");
-    s.scale(200);
-    print(s.getChildCount());
+    shape = loadShape("dodecahedron.obj");
+    shape.scale(200);
 
-    //Face-Vertex Representation
-    for(int j = 0; j < s.getChildCount(); j++) {
-      if(!faces.containsKey(s.getChild(j))) {
-        faces.put(s.getChild(j), new ArrayList<PVector>());
+    //Face-Vertex
+    for(int j = 0; j < shape.getChildCount(); j++) {
+      if(!faces.containsKey(shape.getChild(j))) {
+        faces.put(shape.getChild(j), new ArrayList<PVector>());
       }
-      for (int i = 0; i < s.getChild(j).getVertexCount(); i++) {
-          PVector v = s.getChild(j).getVertex(i);
-          if (!vertex_.containsKey(v)) {
-            vertex_.put(v, new ArrayList<PShape>());
+      for (int i = 0; i < shape.getChild(j).getVertexCount(); i++) {
+          PVector v = shape.getChild(j).getVertex(i);
+          if (!vertexM.containsKey(v)) {
+            vertexM.put(v, new ArrayList<PShape>());
           }
-          vertex_.get(v).add(s.getChild(j));
-          faces.get(s.getChild(j)).add(v);
+          vertexM.get(v).add(shape.getChild(j));
+          faces.get(shape.getChild(j)).add(v);
       }
     }
 
     // Vertex-Vertex Representation
     PVector o;
 
-    for (PVector v: vertex_.keySet()) {
-      for (PShape p: vertex_.get(v)) {
+    for (PVector v: vertexM.keySet()) {
+      for (PShape p: vertexM.get(v)) {
         for (int i = 0; i < p.getVertexCount(); i++){
           o = p.getVertex(i);
 
@@ -92,25 +91,25 @@ class Mesh {
             continue;
           }
 
-          if (!vertex_vertex.containsKey(v)) {
-            vertex_vertex.put(v,new HashSet<PVector>());
+          if (!vertexMesh.containsKey(v)) {
+            vertexMesh.put(v,new HashSet<PVector>());
           }
-          vertex_vertex.get(v).add(o);
+          vertexMesh.get(v).add(o);
         }
       }
     }
   }
 
-  void print_edges(){
+  void edges(){
 
     pushStyle();
     colorMode(RGB);
     stroke(255, 0, 0);
-    for (int i = 0; i < s.getChildCount(); i++) {
-      for (int j = 0; j < s.getChild(i).getVertexCount(); j++) {
-        PVector p = s.getChild(i).getVertex(j);
-        for(int k = j + 1; k < s.getChild(i).getVertexCount(); k++) {
-          PVector q = s.getChild(i).getVertex(k);
+    for (int i = 0; i < shape.getChildCount(); i++) {
+      for (int j = 0; j < shape.getChild(i).getVertexCount(); j++) {
+        PVector p = shape.getChild(i).getVertex(j);
+        for(int k = j + 1; k < shape.getChild(i).getVertexCount(); k++) {
+          PVector q = shape.getChild(i).getVertex(k);
           line(p.x * 200, p.y * 200, p.z * 200, q.x * 200, q.y * 200, q.z * 200);
         }
       }
@@ -118,14 +117,14 @@ class Mesh {
     popStyle();
   }
 
-  void print_points(){
+  void points(){
 
     if (retained) {
       pushStyle();
       stroke(255, 0, 0);
-      for (int i = 0; i < s.getChildCount(); i++) {
-        for (int j = 0; j < s.getChild(i).getVertexCount(); j++) {
-          PVector p = s.getChild(i).getVertex(j);
+      for (int i = 0; i < shape.getChildCount(); i++) {
+        for (int j = 0; j < shape.getChild(i).getVertexCount(); j++) {
+          PVector p = shape.getChild(i).getVertex(j);
           point(p.x * 200, p.y * 200, p.z * 200);
         }
       }
@@ -133,20 +132,20 @@ class Mesh {
     } else {
       pushStyle();
       colorMode(RGB);
-      stroke(124, 252, 0);
-      for (PVector v : vertex_vertex.keySet()) {
+      stroke(255, 0, 0);
+      for (PVector v : vertexMesh.keySet()) {
         point(v.x * 200, v.y * 200, v.z * 200);
       }
       popStyle();
     }
   }
 
-  void print_faces() {
+  void faces() {
 
     if (retained) {
       pushStyle();
-      s.setFill(color(0, 50, 255));
-      shape(s);
+      shape.setFill(color(0, 50, 255));
+      shape(shape);
       popStyle();
     } else {
       pushStyle();
@@ -176,17 +175,17 @@ class Mesh {
     // visual modes
     switch(mode) {
     case 0:
-      print_edges();
-      print_faces();
+      edges();
+      faces();
       break;
     case 1:
-      print_edges();
+      edges();
       break;
     case 2:
-      print_faces();
+      faces();
       break;
     case 3:
-      print_points();
+      points();
       break;
     }
 
